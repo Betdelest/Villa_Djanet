@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AR Switch Models + Loader</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+    }
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+    }
+    .switch-buttons {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 2;
+    }
+    .switch-buttons button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .ar-button {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      background: #fff;
+      border-radius: 6px;
+      font-size: 16px;
+      z-index: 1;
+    }
+    #loadingText, #successMessage {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 2;
+    }
+    #loadingText {
+      bottom: 120px; /* affiché en bas */
+      display: none;
+    }
+    #successMessage {
+      bottom: 60px;
+      color: #0f0;
+      display: none;
+    }
+    .logo {
+      position: absolute;
+      top: 70px;
+      left: 10px;
+      width: 70px;
+      z-index: 3;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo cliquable vers la page Facebook -->
+  <a href="https://www.facebook.com/BETL121" target="_blank">
+    <img src="BETL.png" alt="Logo Bureau" class="logo" />
+  </a>
+
+  <div class="switch-buttons">
+    <button onclick="changeModel('<<Djanet_arch>>.glb')">Architecture</button>
+    <button onclick="changeModel('Djanet_GC.glb')">Génie Civil</button>
+  </div>
+
+  <div id="loadingText">Chargement... 0%</div>
+  <div id="successMessage">✅ Modèle chargé avec succès</div>
+
+  <model-viewer 
+    id="modelViewer"
+    src="Djanet_arch.glb"
+    ar
+    ar-modes="scene-viewer webxr"
+    camera-controls
+    shadow-intensity="1"
+    disable-zoom="false"
+    scale="0.01 0.01 0.01"
+    environment-image="neutral"
+    alt="Modèle 3D AR"
+    loading="eager"
+    reveal="auto"
+  >
+    <button slot="ar-button" class="ar-button">Voir en Réalité Augmentée</button>
+  </model-viewer>
+
+  <script>
+    const viewer = document.getElementById('modelViewer');
+    const loadingText = document.getElementById('loadingText');
+    const successMessage = document.getElementById('successMessage');
+
+    function showSuccessMessage() {
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 2000);
+    }
+
+    viewer.addEventListener('progress', (event) => {
+      const progress = Math.floor(event.detail.totalProgress * 100);
+      loadingText.textContent = `Chargement... ${progress}%`;
+      loadingText.style.display = 'block';
+
+      // Si chargé à 100%, masquer après un petit délai
+      if (progress === 100) {
+        setTimeout(() => {
+          loadingText.style.display = 'none';
+          showSuccessMessage();
+        }, 500);
+      }
+    });
+
+    function changeModel(path) {
+      viewer.src = path;
+      loadingText.textContent = 'Chargement... 0%';
+      loadingText.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
